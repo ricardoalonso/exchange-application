@@ -7,4 +7,5 @@ RUN npm install
 COPY lib ./lib
 COPY index.js .
 
+EXPOSE 8080
 CMD node index.js
