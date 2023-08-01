@@ -1,19 +1,20 @@
-FROM quay.io/quarkus/centos-quarkus-maven:20.0.0-java11 AS build
+FROM registry.access.redhat.com/ubi8:8.1
+ENV JAVA_OPTIONS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENV AB_ENABLED=jmx_exporter
 
-WORKDIR /usr/src/app
+# Be prepared for running in OpenShift too
+RUN mkdir /deployments \
+  && adduser -G root --no-create-home -u 1001 quarkus \
+  && chown -R 1001 /deployments \
+  && chmod -R "g+rwX" /deployments \
+  && chown -R 1001:root /deployments
 
-# Cache dependencies
-COPY pom.xml .
-RUN mvn clean dependency:resolve
+RUN yum -y install java-1.8.0-openjdk-devel
 
-# Build native image
-COPY src /usr/src/app/src
-RUN mvn clean package -Pnative
+COPY target/*-runner.jar /deployments/app.jar
+EXPOSE 8080 8778 9779
 
-## Stage 2 : create the docker final image
-FROM registry.access.redhat.com/ubi8/ubi-minimal
-WORKDIR /work/
-COPY --from=build /usr/src/app/target/*-runner /work/application
-RUN chmod 775 /work
-EXPOSE 8080
-CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
+# run with user 1001
+USER 1001
+
+CMD ["java","-jar","/deployments/app.jar"]

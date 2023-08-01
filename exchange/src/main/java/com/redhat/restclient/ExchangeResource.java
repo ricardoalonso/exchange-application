@@ -35,15 +35,19 @@ public class ExchangeResource {
 
     @POST
     @Path("/historicalData")
-    // TODO: validate whether currency Service serves the source/target currency
-    // something like new ObjectMapper().readTree(body).get("source")
     public List<Currency> getHistoricalData(String body) {
+        try {
+            Thread.sleep(5000);
+        }
+        catch(InterruptedException ie) {
+            ie.printStackTrace();
+        }
+        
         return historyService.getCurrencyExchangeRates(body);
     }
 
     @POST
     @Path("/singleCurrency")
-    // TODO: validate whether currency Service serves the source/target currency
     public Currency getExchangeRate(String body) {
         List<Currency> currencies = historyService.getCurrencyExchangeRates(body);
         Currency latestCurrency = currencies.get(0);
