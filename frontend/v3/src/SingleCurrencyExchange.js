@@ -44,7 +44,7 @@ class CurrencyPicker extends Component {
     }
 
     getCurrencies = () => {
-        FetchUtils.fetchWithRetry(`http://${process.env.REACT_APP_GW_ENDPOINT}/currencies`)
+        FetchUtils.fetchWithRetry(`${process.env.REACT_APP_GW_ENDPOINT}/currencies`)
             .then(currencies => currencies.json())
             .then(currencies => this.setState({
                 currencies, src: currencies[0], target: currencies[1], loading: false
@@ -86,7 +86,7 @@ class CurrencyPicker extends Component {
             source: this.state.src,
             target: this.state.target
         }
-        FetchUtils.fetchWithRetry(`http://${process.env.REACT_APP_GW_ENDPOINT}/exchangeRate/singleCurrency`, {
+        FetchUtils.fetchWithRetry(`${process.env.REACT_APP_GW_ENDPOINT}/exchangeRate/singleCurrency`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

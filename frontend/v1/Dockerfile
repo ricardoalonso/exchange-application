@@ -2,7 +2,7 @@ FROM registry.access.redhat.com/ubi8/nodejs-12
 
 # URL of the exchange app
 # All env vars exposed to the React app must start with REACT_APP
-ENV REACT_APP_GW_ENDPOINT=PLACEHOLDER
+ENV REACT_APP_GW_ENDPOINT=exchange
 
 # Cache dependencies
 COPY package.json .

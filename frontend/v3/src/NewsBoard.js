@@ -14,7 +14,7 @@ class NewsBoard extends Component {
     }
 
     componentDidMount() {
-        fetch(`http://${process.env.REACT_APP_GW_ENDPOINT}/news`)
+        fetch(`${process.env.REACT_APP_GW_ENDPOINT}/news`)
             .then(res => res.json())
             .then((data) => {
                 this.setState({ rows: this.normalize(data) });
