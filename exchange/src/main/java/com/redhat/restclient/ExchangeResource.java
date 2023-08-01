@@ -1,6 +1,10 @@
 package com.redhat.restclient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Metered;
+import org.eclipse.microprofile.metrics.annotation.SimplyTimed;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.inject.Inject;
@@ -35,14 +39,20 @@ public class ExchangeResource {
 
     @POST
     @Path("/historicalData")
+    @SimplyTimed(name = "exchange_svc:history_fetch_time", 
+        description = "A measure of how long it takes to fetch history data", 
+        unit = MetricUnits.MILLISECONDS)
+    @Metered(name = "exchange_svc:history_fetch_rate", 
+        unit = MetricUnits.MINUTES, 
+        description = "Rate at which historical data is fetched (minutes)", 
+        absolute = true)
     public List<Currency> getHistoricalData(String body) {
         try {
             Thread.sleep(5000);
-        }
-        catch(InterruptedException ie) {
+        } catch (InterruptedException ie) {
             ie.printStackTrace();
         }
-        
+
         return historyService.getCurrencyExchangeRates(body);
     }
 
@@ -53,7 +63,7 @@ public class ExchangeResource {
         Currency latestCurrency = currencies.get(0);
         try {
             String target = mapper.readTree(body).get("target").asText();
-            if(target.equals("USD")) {
+            if (target.equals("USD")) {
                 latestCurrency.setSign("$");
             } else {
                 latestCurrency.setSign("€");
