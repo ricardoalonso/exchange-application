@@ -1,4 +1,4 @@
-FROM ubi8/nodejs-12
+FROM registry.access.redhat.com/ubi8/nodejs-12
 
 ENV JAEGER_SERVICE_NAME=history \
     JAEGER_SAMPLER_TYPE=const \
