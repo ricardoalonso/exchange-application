@@ -1,7 +1,7 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: frontend-gw
+  name: frontend
 spec:
   selector:
     istio: ingressgateway # use istio default controller
@@ -16,12 +16,12 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: frontend-vservice
+  name: frontend
 spec:
   hosts:
   - "*"
   gateways:
-  - frontend-gw
+  - frontend
   http:
   - match:
     - uri:
