@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: List
+metadata:
+  resourceVersion: ""
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: history
+      app.kubernetes.io/component: history
+      app.kubernetes.io/instance: history
+    name: history
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deployment: history
+    type: ClusterIP
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+      image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"history:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"history\")].image"}]'
+    labels:
+      app: history
+      app.kubernetes.io/component: history
+      app.kubernetes.io/instance: history
+    name: history
+  spec:
+    selector:
+      matchLabels:
+        deployment: history
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        labels:
+          deployment: history
+      spec:
+        containers:
+        - image: 
+          imagePullPolicy: IfNotPresent
+          name: history
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      app: history
+      app.kubernetes.io/component: history
+      app.kubernetes.io/instance: history
+    name: history
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: history:latest
+    runPolicy: Serial
+    source:
+      contextDir: history
+      git:
+        uri: https://github.com/ricardoalonso/exchange-application.git
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: ImageStreamTag
+          name: nodejs-12:latest
+      type: Docker
+    triggers:
+    - github:
+        secret: 3EvAa00an8rVry-uuFGZ
+      type: GitHub
+    - generic:
+        secret: yipQrVwU8LfDT9bNB2FS
+      type: Generic
+    - type: ConfigChange
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    labels:
+      app: history
+      app.kubernetes.io/component: history
+      app.kubernetes.io/instance: history
+    name: history
+  spec:
+    lookupPolicy:
+      local: false
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    labels:
+      app: history
+      app.kubernetes.io/component: history
+      app.kubernetes.io/instance: history
+    name: nodejs-12
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/imported-from: registry.access.redhat.com/ubi8/nodejs-12
+      from:
+        kind: DockerImage
+        name: registry.access.redhat.com/ubi8/nodejs-12
+      name: latest
